@@ -46,6 +46,10 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton(\App\Repositories\CustomerRepository::class, function ($app) {
+    return new \App\Repositories\CustomerRepository($app['em']);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Register Config Files
@@ -85,10 +89,11 @@ $app->configure('app');
 |
 */
 
+$app->register(LaravelDoctrine\ORM\DoctrineServiceProvider::class);
+$app->register(LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class);
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
-$app->register(LaravelDoctrine\ORM\DoctrineServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------
