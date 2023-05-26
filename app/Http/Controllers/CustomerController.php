@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 use App\Repositories\CustomerRepository;
 use App\Transformers\Customers\FetchAllCustomersTransformer;
 use App\Transformers\Customers\FetchCustomerTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
@@ -51,12 +52,17 @@ class CustomerController extends BaseController
      * Find an existing customer in the database
      * Transform response using fractal
      * @return JsonResponse
+     * @throws ModelNotFoundException
      */
     public function findCustomer(int $customerId): JsonResponse
     {
         $customer = $this->customerRepository->findCustomer($customerId);
+        if (empty($customer) === true) {
+            throw new ModelNotFoundException('Customer not Found');
+        }
+
         $response = (new FetchCustomerTransformer())
-            ->response(data_get($customer, '0', []))
+            ->response($customer)
             ->transform();
 
         // Response can be logged in here
