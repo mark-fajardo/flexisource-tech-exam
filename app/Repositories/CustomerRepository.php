@@ -42,14 +42,14 @@ class CustomerRepository
     public function insertOrUpdateCustomers(array $customers): void
     {
         foreach ($customers as $customer) {
-            $currentEntity = $this->entityManager->getRepository($this->entity)->findByEmail($customer['email']);
+            $currentEntity = $this->entityManager->getRepository($this->entity)->findOneBy(['email' => $customer['email']]);
     
-            if (!$currentEntity) {
+            if (is_null($currentEntity) === true) {
                 $currentEntity = new Customers();
                 $currentEntity->setEmail($customer['email']);
                 $currentEntity->setCreatedAt(new DateTime());
             } else {
-                $currentEntity = $currentEntity[0];
+                $currentEntity = $currentEntity;
                 $currentEntity->setUpdatedAt(new DateTime());
             }
     
@@ -108,6 +108,6 @@ class CustomerRepository
         ]))->from($this->entity, 'c')
             ->where('c.id = ' . $customerId);
         
-        return $queryBuilder->getQuery()->getResult();
+        return data_get($queryBuilder->getQuery()->getResult(), '0', []);
     }
 }

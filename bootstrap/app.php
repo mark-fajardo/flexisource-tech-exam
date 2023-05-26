@@ -23,8 +23,6 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
-
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -62,21 +60,8 @@ $app->singleton(\App\Repositories\CustomerRepository::class, function ($app) {
 */
 
 $app->configure('app');
-
-/*
-|--------------------------------------------------------------------------
-| Register Middleware
-|--------------------------------------------------------------------------
-|
-| Next, we will register the middleware with the application. These can
-| be global middleware that run before and after each request into a
-| route or middleware that'll be assigned to some specific routes.
-|
-*/
-
-// $app->middleware([
-//     App\Http\Middleware\ExampleMiddleware::class
-// ]);
+$app->configure('cache');
+$app->configure('database');
 
 /*
 |--------------------------------------------------------------------------
@@ -91,9 +76,6 @@ $app->configure('app');
 
 $app->register(LaravelDoctrine\ORM\DoctrineServiceProvider::class);
 $app->register(LaravelDoctrine\Extensions\GedmoExtensionsServiceProvider::class);
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

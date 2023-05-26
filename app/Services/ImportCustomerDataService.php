@@ -70,7 +70,7 @@ class ImportCustomerDataService
      * @param array $customers
      * @return array
      */
-    private function prepareCustomersData(array $customers)
+    private function prepareCustomersData(array $customers): array
     {
         return array_map(function ($item) {
             return [

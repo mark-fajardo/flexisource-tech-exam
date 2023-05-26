@@ -80,15 +80,6 @@ class Customers
     protected $updated_at;
 
     /**
-     * Find customer by email
-     * @param string $email
-     */
-    public function findByEmail(string $email)
-    {
-        return $this->findOneBy(['email' => $email]);
-    }
-
-    /**
      * Set first name
      * @param string $first_name
      */

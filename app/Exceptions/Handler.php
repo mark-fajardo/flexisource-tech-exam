@@ -50,7 +50,7 @@ class Handler extends ExceptionHandler
      *
      * @throws Throwable
      */
-    public function report(Throwable $exception)
+    public function report(Throwable $exception): void
     {
         parent::report($exception);
     }
@@ -64,7 +64,7 @@ class Handler extends ExceptionHandler
      *
      * @throws Throwable
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $exception): Response|JsonResponse
     {
         return $this->handle($exception);
     }
@@ -84,11 +84,12 @@ class Handler extends ExceptionHandler
         // - ValidationException will not be caught and will not be removed in the $dontReport variable 
         // - Will also not use the $request from the render method
         $exceptionMap = [
-            'DBALException '        => 422,
-            'ErrorException'        => 400,
-            'HttpResponseException' => 422,
-            'NotFoundHttpException' => 404,
-            'QueryException '       => 500,
+            'DBALException '         => 422,
+            'ErrorException'         => 400,
+            'HttpResponseException'  => 422,
+            'NotFoundHttpException'  => 404,
+            'ModelNotFoundException' => 404,
+            'QueryException '        => 500,
         ];
         $exceptionName = class_basename($exception);
 
