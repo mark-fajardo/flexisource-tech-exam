@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use App\Constants\ApiConstants;
 use Exception;
 
 /**

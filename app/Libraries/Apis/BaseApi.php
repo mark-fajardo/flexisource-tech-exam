@@ -5,7 +5,6 @@ namespace App\Libraries\Apis;
 use App\Traits\ApiRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Log;
-use App\Libraries\ApiRequestUtils;
 
 /**
  * Class BaseApi
