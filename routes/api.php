@@ -13,6 +13,9 @@
 |
 */
 
-$router->get('/', function () use ($router) {
-    return $router->app->version();
+// Router group for APIs
+$router->group(['prefix' => 'api'], function () use ($router) {
+    // Customers API
+    $router->get('/customers', 'CustomerController@findAllCustomers');
+    $router->get('/customers/{customerId}', 'CustomerController@findCustomer');
 });

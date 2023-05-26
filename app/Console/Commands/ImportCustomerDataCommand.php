@@ -50,10 +50,13 @@ class ImportCustomerDataCommand extends Command
     public function handle()
     {
         $results = (int) $this->option('length');
+
         $this->info('Fetching all customers\' data');
         $customers = $this->importCustomerDataService->fetchCustomers($results);
+
         $this->info('Importing all customers\' data');
         $this->importCustomerDataService->importCustomers($customers);
+        
         $this->info('Done importing all customers\'s data');
     }
 }

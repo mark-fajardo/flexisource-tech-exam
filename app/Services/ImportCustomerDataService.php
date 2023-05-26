@@ -5,7 +5,7 @@ namespace App\Services;
 
 use App\Constants\ApiConstants;
 use App\Exceptions\RandomUserRequestException;
-use App\Libraries\Apis\RandomUser\UserApi;
+use App\Libraries\Apis\RandomUser\UserApi as RandomUserApi;
 use App\Repositories\CustomerRepository;
 
 /**
@@ -18,9 +18,9 @@ class ImportCustomerDataService
 {
     /**
      * Contains the RandomUser User API instance
-     * @var UserApi
+     * @var RandomUserApi
      */
-    private UserApi $userApi;
+    private RandomUserApi $userApi;
     
     /**
      * Contains the Customer Repository instance
@@ -31,7 +31,7 @@ class ImportCustomerDataService
     /**
      * ImportCustomerDataService constructor
      */
-    public function __construct(UserApi $userApi, CustomerRepository $customerRepository)
+    public function __construct(RandomUserApi $userApi, CustomerRepository $customerRepository)
     {
         $this->userApi = $userApi;
         $this->customerRepository = $customerRepository;

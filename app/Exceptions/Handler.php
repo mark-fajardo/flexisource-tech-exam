@@ -1,12 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use App\Transformers\BaseTransformer;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -19,19 +23,32 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         AuthorizationException::class,
         HttpException::class,
-        ModelNotFoundException::class,
         ValidationException::class,
     ];
+
+    /**
+     * @var BaseTransformer
+     */
+    private BaseTransformer $baseTransformer;
+
+    /**
+     * ErrorHandler constructor.
+     * @param BaseTransformer $baseTransformer
+     */
+    public function __construct(BaseTransformer $baseTransformer)
+    {
+        $this->baseTransformer = $baseTransformer;
+    }
 
     /**
      * Report or log an exception.
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Throwable  $exception
+     * @param  Throwable  $exception
      * @return void
      *
-     * @throws \Exception
+     * @throws Throwable
      */
     public function report(Throwable $exception)
     {
@@ -41,14 +58,51 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @param  Request  $request
+     * @param  Throwable  $exception
+     * @return Response|JsonResponse
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public function render($request, Throwable $exception)
     {
-        return parent::render($request, $exception);
+        return $this->handle($exception);
+    }
+        
+    /**
+     * Handles the error.
+     *
+     * @param Request $request
+     * @param Throwable $exception
+     * @return JsonResponse
+     */
+    private function handle(Throwable $exception): JsonResponse
+    {
+        $statusCode = 500;
+        $message = 'Internal Server Error';
+        // Since there are no request paramaters to be validated:
+        // - ValidationException will not be caught and will not be removed in the $dontReport variable 
+        // - Will also not use the $request from the render method
+        $exceptionMap = [
+            'DBALException '        => 422,
+            'ErrorException'        => 400,
+            'HttpResponseException' => 422,
+            'NotFoundHttpException' => 404,
+            'QueryException '       => 500,
+        ];
+        $exceptionName = class_basename($exception);
+
+        if (array_key_exists($exceptionName, $exceptionMap)) {
+            $statusCode = $exceptionMap[$exceptionName];
+            $message = Response::$statusTexts[$statusCode];
+        }
+
+        $response = $this->baseTransformer->errorResponse([
+            $statusCode,
+            $message
+        ]);
+        // Response can be logged here
+
+        return $response;
     }
 }
