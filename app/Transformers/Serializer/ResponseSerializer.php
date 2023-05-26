@@ -33,13 +33,4 @@ class ResponseSerializer extends ArraySerializer
     {
         return $data;
     }
-
-    /**
-     * Serialize null resource.
-     * @return array{data: array<null>}
-     */
-    public function null(): array
-    {
-        return ['data' => []];
-    }
 }

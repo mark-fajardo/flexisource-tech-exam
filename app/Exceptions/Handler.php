@@ -5,7 +5,6 @@ namespace App\Exceptions;
 
 use App\Transformers\BaseTransformer;
 use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -24,6 +23,7 @@ class Handler extends ExceptionHandler
     protected $dontReport = [
         AuthorizationException::class,
         HttpException::class,
+        ValidationException::class,
     ];
 
     /**
@@ -66,7 +66,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        return $this->handle($request, $exception);
+        return $this->handle($exception);
     }
         
     /**
@@ -76,25 +76,25 @@ class Handler extends ExceptionHandler
      * @param Throwable $exception
      * @return JsonResponse
      */
-    private function handle(Request $request, Throwable $exception): JsonResponse
+    private function handle(Throwable $exception): JsonResponse
     {
         $statusCode = 500;
         $message = 'Internal Server Error';
+        // Since there are no request paramaters to be validated:
+        // - ValidationException will not be caught and will not be removed in the $dontReport variable 
+        // - Will also not use the $request from the render method
         $exceptionMap = [
-            'QueryException' => 422,
-            'QueryExecutionException' => 422,
+            'DBALException '        => 422,
+            'ErrorException'        => 400,
             'HttpResponseException' => 422,
-            'ValidationException' => 422,
-            'ErrorException' => 400,
-            'ModelNotFoundException' => 404,
             'NotFoundHttpException' => 404,
-            'NoRequestException' => 400
+            'QueryException '       => 500,
         ];
         $exceptionName = class_basename($exception);
 
         if (array_key_exists($exceptionName, $exceptionMap)) {
             $statusCode = $exceptionMap[$exceptionName];
-            $message = $this->getMessage($exceptionName, $exception, $statusCode);
+            $message = Response::$statusTexts[$statusCode];
         }
 
         $response = $this->baseTransformer->errorResponse([
@@ -104,30 +104,5 @@ class Handler extends ExceptionHandler
         // Response can be logged here
 
         return $response;
-    }
-
-    /**
-     * Get appropriate message depending on the exception.
-     * Add a filter for custom exceptions that need to show the exception message.
-     *
-     * @param string $exceptionName
-     * @param Throwable $exception
-     * @param int $statusCode
-     * @return string
-     */
-    private function getMessage(string $exceptionName, Throwable $exception, int $statusCode): string
-    {
-        if ($exceptionName === class_basename(ValidationException::class)) {
-            return $exception->getMessage();
-        }
-
-        if ($exceptionName === class_basename(ModelNotFoundException::class)) {
-            /** @var ModelNotFoundException $exception */
-            $model = last(explode('\\', $exception->getModel()));
-            $ids = implode(',', $exception->getIds());
-            return $model . ': ' . $ids . ' ' . Response::$statusTexts[$statusCode];
-        }
-
-        return Response::$statusTexts[$statusCode];
     }
 }

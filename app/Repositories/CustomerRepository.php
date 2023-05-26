@@ -71,4 +71,43 @@ class CustomerRepository
     
         $this->entityManager->flush();
     }
+
+    /**
+     * Find all customers available in the database with specific fields to be fetched.
+     * @return array
+     */
+    public function findAllCustomers(): array
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder->select('c.' . implode(', c.', [
+            'first_name',
+            'last_name',
+            'email',
+            'country'
+        ]))->from($this->entity, 'c');
+        
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    /**
+     * Find a customer in the database with all the fields to be fetched.
+     * @return array
+     */
+    public function findCustomer(int $customerId): array
+    {
+        $queryBuilder = $this->entityManager->createQueryBuilder();
+        $queryBuilder->select('c.' . implode(', c.', [
+            'first_name',
+            'last_name',
+            'email',
+            'username',
+            'gender',
+            'country',
+            'city',
+            'phone'
+        ]))->from($this->entity, 'c')
+            ->where('c.id = ' . $customerId);
+        
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
